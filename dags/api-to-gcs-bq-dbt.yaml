@@ -1,0 +1,34 @@
+id: api-to-gcs-bq-dbt
+namespace: my_project
+
+tasks:
+  - id: run_dlt_pipeline
+    type: io.kestra.core.tasks.scripts.Python
+    docker:
+      image: python:3.9
+    beforeScript: |
+      pip install dlt google-cloud-storage
+    script: |
+      from pipeline import main
+      main()
+
+  - id: create_bq_external_table
+    type: io.kestra.plugin.gcp.bigquery.CreateExternalTable
+    projectId: "your_project"
+    dataset: "raw_dataset"
+    table: "external_artists"
+    sourceUris:
+      - "gs://raw-data-lake/raw/artists/date=*/**/*.parquet"
+    sourceFormat: "PARQUET"
+
+  - id: run_dbt
+    type: io.kestra.core.tasks.scripts.Bash
+    docker:
+      image: fishtownanalytics/dbt:latest
+    commands:
+      - dbt run --profiles-dir /usr/app/profiles
+
+triggers:
+  - id: daily
+    type: io.kestra.core.models.triggers.Schedule
+    cron: "0 2 * * *"
