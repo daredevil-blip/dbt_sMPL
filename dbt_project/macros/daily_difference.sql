@@ -4,5 +4,5 @@ This macro calculates the difference between the current day’s total vaccinati
 
 
 {% macro daily_difference(column_name) %}
-    {{ column_name }} - LAG({{ column_name }}) OVER (PARTITION BY location ORDER BY date) 
+    {{ column_name }} - LAG({{ column_name }}) OVER (PARTITION BY location ORDER BY vaccination_date) 
 {% endmacro %}

@@ -5,7 +5,7 @@ sources:
     database: acoustic-env-454618-v3  # Replace with your actual GCP project ID
     schema: covid_raw_data  # This should match your dataset in BigQuery
     tables:
-      - name: vaccination_data_raw  # This should match your table in BigQuery
+      - name: vaccination_data_optimized  # This should match your table in BigQuery
 
 
 models:

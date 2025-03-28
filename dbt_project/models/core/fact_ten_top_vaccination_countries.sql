@@ -8,13 +8,13 @@
 WITH vaccination_data_aggregated AS (
     SELECT 
         -- Generate a primary key for the fact table
-        ROW_NUMBER() OVER (ORDER BY v.year,  c.Name) AS vaccination_fact_id,
+        ROW_NUMBER() OVER (ORDER BY v.vacc_year,  c.Name) AS vaccination_fact_id,
         
 
         -- Country and Date foreign keys
         c.Name,
         c.NUM AS country_id,
-        v.year,  -- Extract year for aggregation
+        v.vacc_year,  -- Extract year for aggregation
 
         -- Aggregated vaccination data measures
         SUM(v.total_vaccinations) AS total_vaccinations,
@@ -31,20 +31,20 @@ WITH vaccination_data_aggregated AS (
         SUM(v.daily_people_vaccinated) AS daily_people_vaccinated,
         SUM(v.daily_people_vaccinated_per_hundred) AS daily_people_vaccinated_per_hundred
 
-    FROM {{ ref('stg_vaccination_data_raw') }} v
+    FROM {{ ref('stg_staging__vaccination_data_optimized') }} v
     LEFT JOIN {{ ref('dim_country_code') }} c
         ON v.iso_code = c.iso_code  -- Join on country code
     GROUP BY
         c.Name,
         c.NUM,
-        v.year -- Group by country and year
+        v.vacc_year -- Group by country and year
 ),
 
 top_10_vaccinated AS (
     SELECT 
        Name as Country_name,
         country_id,
-        year,
+        vacc_year,
         people_vaccinated,
         total_vaccinations,
         people_fully_vaccinated,
